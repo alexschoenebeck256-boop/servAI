@@ -60,7 +60,7 @@ class TwilioIntegration:
 
         try:
             # Find the incoming phone number resource
-            phone_numbers = self.client.incoming_phones.list(phone_number=self.from_phone)
+            phone_numbers = self.client.incoming_phone_numbers.list(phone_number=self.from_phone)
             if not phone_numbers:
                 logger.error(f"Phone number {self.from_phone} not found in Twilio account")
                 return {"error": "Phone number not found"}
@@ -68,7 +68,7 @@ class TwilioIntegration:
             phone_number = phone_numbers[0]
             
             # Update the voice URL and HTTP method
-            updated = self.client.incoming_phones(phone_number.sid).update(
+            updated = self.client.incoming_phone_numbers(phone_number.sid).update(
                 voice_url=voice_url,
                 voice_method="POST"
             )
@@ -90,7 +90,7 @@ class TwilioIntegration:
             return {"phone_number": self.from_phone, "status": "mock"}
 
         try:
-            phone_numbers = self.client.incoming_phones.list(phone_number=self.from_phone)
+            phone_numbers = self.client.incoming_phone_numbers.list(phone_number=self.from_phone)
             if not phone_numbers:
                 return None
             

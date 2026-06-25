@@ -1,11 +1,12 @@
 from fastapi import FastAPI
-from app.api.v1 import auth, leads, agents, conversations, knowledge, customers, jobs, invoices
+from app.api.v1 import auth, leads, agents, conversations, knowledge, customers, jobs, invoices, voice
 from app.core.config import settings
 
 app = FastAPI(title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json")
 
 from fastapi import WebSocket, WebSocketDisconnect
 from app.ws.manager import manager
+from app.ws.voice import voice_websocket_handler
 from uuid import UUID
 
 @app.get("/health")
@@ -24,6 +25,10 @@ async def websocket_endpoint(websocket: WebSocket, business_id: str):
     except Exception:
         await websocket.close()
 
+@app.websocket("/ws/voice")
+async def voice_ws_endpoint(websocket: WebSocket):
+    """Twilio ConversationRelay WebSocket endpoint for AI voice calls."""
+    await voice_websocket_handler(websocket)
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(leads.router, prefix=f"{settings.API_V1_STR}/leads", tags=["leads"])
@@ -33,3 +38,4 @@ app.include_router(knowledge.router, prefix=f"{settings.API_V1_STR}/knowledge", 
 app.include_router(customers.router, prefix=f"{settings.API_V1_STR}/customers", tags=["customers"])
 app.include_router(jobs.router, prefix=f"{settings.API_V1_STR}/jobs", tags=["jobs"])
 app.include_router(invoices.router, prefix=f"{settings.API_V1_STR}/invoices", tags=["invoices"])
+app.include_router(voice.router, prefix=f"{settings.API_V1_STR}/voice", tags=["voice"])
